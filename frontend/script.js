@@ -5,7 +5,7 @@ if (!API_KEY) {
   if (API_KEY) localStorage.setItem('jarvis_key', API_KEY.trim());
 }
 
-const MODELS = ["gemini-2.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest"];
+const MODELS = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"];
 
 // ==== 2. MEMORY & UI ELEMENTS ====
 let MEMORY = JSON.parse(localStorage.getItem('jarvis_memory') || '[]');
