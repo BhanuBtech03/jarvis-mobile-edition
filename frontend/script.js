@@ -88,18 +88,21 @@ async function handleTools(text) {
     }
   }
 
-  // 5. YouTube Play
-  if (t.includes('play ') || t.includes('youtube ')) {
-    const q = text.replace(/play (youtube )?(search )?/i, '').trim();
+  // 5. YouTube Play / Open
+  if (t.includes('youtube') || t.includes('యూట్యూబ్') || t.startsWith('play ') || t.startsWith('open ')) {
+    let q = text
+      .replace(/^(open|play|search)\s*(on\s*)?(youtube|యూట్యూబ్)?\s*(for\s*)?/i, '')
+      .replace(/\b(youtube|యూట్యూబ్)\b/gi, '')
+      .trim();
+
     if (q) {
-      window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(q));
+      window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(q), '_blank');
       return `Searching YouTube for '${q}', Boss.`;
+    } else if (t.includes('youtube') || t.includes('యూట్యూబ్') || t.includes('open')) {
+      window.open('https://www.youtube.com', '_blank');
+      return 'Opening YouTube, Boss.';
     }
   }
-
-  return null; // Tool match కాకపోతే Gemini Brain కి వెళ్తుంది
-}
-
 // ==== 4. GEMINI TEXT BRAIN ====
 async function callGemini(promptText) {
   if (!API_KEY) {
