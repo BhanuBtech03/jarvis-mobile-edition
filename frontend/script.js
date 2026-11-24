@@ -5,7 +5,12 @@ if (!API_KEY) {
   if (API_KEY) localStorage.setItem('jarvis_key', API_KEY.trim());
 }
 
-const MODELS = ["gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"];
+const MODELS = [
+  "gemini-3.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-3.1-flash-lite",
+  "gemini-flash-latest"
+];
 
 // ==== 2. MEMORY & UI ELEMENTS ====
 let MEMORY = JSON.parse(localStorage.getItem('jarvis_memory') || '[]');
@@ -66,11 +71,14 @@ async function handleTools(text) {
   }
 
   // 3. Timer
-  const m = t.match(/(\d+)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?)/i);
-  if ((t.includes('timer') || t.includes('టైమర్')) && m) {
+  const m = t.match(/(\d+)\s*(seconds?|secs?|minutes?|mins?|hours?|hrs?|సెకన్లు?|నిమిషాలు?|గంటలు?)/i);
+  if (t.includes('timer') || t.includes('టైమర్')) {
+    if (!m) {
+      return 'ఎంత సమయానికి టైమర్ పెట్టాలి, Boss? (ఉదాహరణకు: "set timer for 10 seconds" అని చెప్పండి.)';
+    }
     const amount = parseInt(m[1]);
     const unit = m[2].toLowerCase();
-    const factor = /^h(ours?|rs?)/.test(unit) ? 3600000 : (/^s(econds?|ecs?)/.test(unit) ? 1000 : 60000);
+    const factor = /^(h|గంట)/.test(unit) ? 3600000 : (/^(s|సెక)/.test(unit) ? 1000 : 60000);
     const duration = amount * factor;
     setTimeout(() => speak(`టైమర్ పూర్తయింది! ${amount} ${unit} అయ్యాయి.`), duration);
     return `Timer set for ${amount} ${unit}.`;
@@ -90,7 +98,7 @@ async function handleTools(text) {
 
   // 5. YouTube Play / Open
   if (t.includes('youtube') || t.includes('యూట్యూబ్') || t.startsWith('play ') || t.startsWith('open ')) {
-    let q = text
+    const q = text
       .replace(/^(open|play|search)\s*(on\s*)?(youtube|యూట్యూబ్)?\s*(for\s*)?/i, '')
       .replace(/\b(youtube|యూట్యూబ్)\b/gi, '')
       .trim();
@@ -103,6 +111,10 @@ async function handleTools(text) {
       return 'Opening YouTube, Boss.';
     }
   }
+
+  return null;
+}
+
 // ==== 4. GEMINI TEXT BRAIN ====
 async function callGemini(promptText) {
   if (!API_KEY) {
@@ -114,7 +126,7 @@ async function callGemini(promptText) {
   }));
   contents.push({ role: 'user', parts: [{ text: promptText }] });
 
-  let lastErr;
+  const errors = [];
   for (const model of MODELS) {
     try {
       const res = await fetch(
@@ -127,20 +139,20 @@ async function callGemini(promptText) {
       );
       const data = await res.json();
       if (data.error) {
-        lastErr = new Error(data.error.message);
-        if (/high demand|temporary|quota|rate|unavailable|deprecated|not found/i.test(data.error.message)) {
-          continue;
-        }
-        throw lastErr;
+        errors.push(`${model}: ${data.error.message}`);
+        continue;
       }
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!reply) throw new Error('Empty response from model');
+      if (!reply) {
+        errors.push(`${model}: Empty response`);
+        continue;
+      }
       return reply;
     } catch (e) {
-      lastErr = e;
+      errors.push(`${model}: ${e.message}`);
     }
   }
-  throw lastErr || new Error('All models failed');
+  throw new Error(errors.join(' | ') || 'All models failed');
 }
 
 async function askGemini(promptText) {
@@ -189,7 +201,7 @@ async function askVision(base64, mimeType, question) {
   if (sysLabel) sysLabel.textContent = 'ANALYZING IMAGE';
   add('J.A.R.V.I.S: Analyzing image...', 'ai');
 
-  let lastErr;
+  const errors = [];
   for (const model of MODELS) {
     try {
       const res = await fetch(
@@ -209,23 +221,23 @@ async function askVision(base64, mimeType, question) {
       );
       const data = await res.json();
       if (data.error) {
-        lastErr = new Error(data.error.message);
-        if (/high demand|temporary|quota|rate|unavailable|deprecated|not found/i.test(data.error.message)) {
-          continue;
-        }
-        throw lastErr;
+        errors.push(`${model}: ${data.error.message}`);
+        continue;
       }
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!reply) throw new Error('Empty vision response');
+      if (!reply) {
+        errors.push(`${model}: Empty vision response`);
+        continue;
+      }
       chat.lastChild.innerText = 'J.A.R.V.I.S: ' + reply;
       speak(reply);
       if (sysLabel) sysLabel.textContent = 'SYSTEM READY';
       return;
     } catch (e) {
-      lastErr = e;
+      errors.push(`${model}: ${e.message}`);
     }
   }
-  chat.lastChild.innerText = 'J.A.R.V.I.S: ERROR - ' + (lastErr ? lastErr.message : 'Vision failed');
+  chat.lastChild.innerText = 'J.A.R.V.I.S: ERROR - ' + (errors.join(' | ') || 'Vision failed');
   if (sysLabel) sysLabel.textContent = 'SYSTEM READY';
 }
 
