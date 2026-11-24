@@ -1,36 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>J.A.R.V.I.S</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S - Personal AI Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header><h1>J.A.R.V.I.S</h1><p>MOBILE EDITION</p></header>
+  <div class="hud-container">
+    <header class="hud-header">
+      <h1>J.A.R.V.I.S</h1>
+      <p>PERSONAL AI ASSISTANT</p>
+    </header>
 
-  <div class="core">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="center"></div>
-  </div>
-  <p class="core-text">CORE ACTIVE</p>
+    <div class="reactor-section">
+      <div class="arc-reactor">
+        <div class="outer-ring"></div>
+        <div class="middle-ring"></div>
+        <div class="core-orb"></div>
+      </div>
+      <div id="system-label" class="system-label">SYSTEM READY</div>
+    </div>
 
-  <div class="status">
-    <h2>SYSTEM STATUS</h2>
-    <div class="row"><span>AI CORE</span><b class="on">• ONLINE</b></div>
-    <div class="row"><span>NETWORK</span><b class="on">• ONLINE</b></div>
-    <div class="row"><span>VOICE</span><b class="off">• LOCKED</b></div>
-    <div class="row"><span>MEMORY</span><b class="off">• LOCKED</b></div>
-  </div>
+    <section class="diagnostics-box">
+      <div class="diag-title">SYSTEM DIAGNOSTICS</div>
+      <div class="diag-row">
+        <span>AI ENGINE</span>
+        <span id="status-engine" class="status-val online">• OPERATIONAL</span>
+      </div>
+      <div class="diag-row">
+        <span>CONNECTION</span>
+        <span id="status-conn" class="status-val online">• ONLINE</span>
+      </div>
+      <div class="diag-row">
+        <span>VOICE INTERFACE</span>
+        <span id="status-voice" class="status-val ready">• READY</span>
+      </div>
+      <div class="diag-row">
+        <span>LONG-TERM MEMORY</span>
+        <span id="status-mem" class="status-val active">• ACTIVE</span>
+      </div>
+    </section>
 
-  <div class="chat" id="chat"></div>
-  <div class="input-area">
-    <input id="msg" placeholder="Ask J.A.R.V.I.S...">
-    <button id="send">SEND</button><button id="mic-btn">️</button>
+    <section id="chat" class="chat-panel"></section>
+
+    <section class="controls-area">
+      <div class="input-row">
+        <input type="text" id="msg" placeholder="Enter command or ask about an image..." autocomplete="off" />
+        <button id="exec-btn" type="button">EXECUTE</button>
+      </div>
+      <div class="action-row">
+        <button id="mic-btn" type="button" title="Voice Input">🎤</button>
+        <button id="cam-btn" type="button" title="Upload Image">📷</button>
+        <input type="file" id="img-input" accept="image/*" hidden />
+        <button id="clear-btn" type="button">CLEAR MEMORY</button>
+      </div>
+    </section>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
-
