@@ -1,51 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0d12">
-  <meta name="description" content="J.A.R.V.I.S Personal AI Assistant - Mobile Edition">
-  <title>J.A.R.V.I.S</title>
-
-  <!-- PWA Support -->
-  <link rel="manifest" href="./manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>J.A.R.V.I.S Mobile Edition</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
+  <div class="jarvis-app">
     <h1>J.A.R.V.I.S</h1>
-    <p>MOBILE EDITION</p>
-  </header>
+    <p class="subtitle">MOBILE EDITION</p>
 
-  <div class="core">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="center"></div>
-  </div>
-  <p class="core-text">CORE ACTIVE</p>
+    <!-- API Key Setup Bar -->
+    <div class="api-bar" style="display:flex; gap:8px; margin:10px 0; flex-wrap:wrap;">
+      <input
+        type="password"
+        id="apiKeyInput"
+        placeholder="Enter Gemini API Key..."
+        style="flex:1; min-width:180px; padding:8px; background:#041518; color:#00f7ff; border:1px solid #00a8b5;"
+      />
+      <button type="button" id="saveApiKeyBtn">SAVE KEY</button>
+      <span id="apiKeyStatus" style="font-size:12px; align-self:center; color:#00f7ff;"></span>
+    </div>
 
-  <div class="status">
-    <h2>SYSTEM STATUS</h2>
-    <div class="row"><span>AI CORE</span><b class="on" id="ai-status">● ONLINE</b></div>
-    <div class="row"><span>NETWORK</span><b class="on" id="net-status">● ONLINE</b></div>
-    <div class="row"><span>VOICE</span><b class="off" id="voice-status">● READY</b></div>
-    <div class="row"><span>MEMORY</span><b class="on" id="mem-status">● ACTIVE</b></div>
-    <div class="row"><span>WAKE WORD</span><b class="off" id="wake-status">WAKE: OFF</b></div>
-  </div>
+    <!-- Document Upload Indicator -->
+    <div id="docStatus" style="font-size:12px; color:#7ef9ff; margin-bottom:6px;">
+      No document attached
+    </div>
 
-  <div class="chat" id="chat"></div>
+    <!-- Chat / Output Box -->
+    <div id="chatLog" class="chat-log"></div>
 
-  <div class="input-area">
-    <input id="msg" type="text" placeholder="Ask J.A.R.V.I.S...">
-    <button id="send" type="button">SEND</button>
-    <button id="mic-btn" type="button">MIC</button>
-    <button id="cam-btn" type="button">CAM</button>
-    <button id="wake-btn" type="button">WAKE</button>
-    <button id="clear-btn" type="button">CLEAR</button>
-    <input id="img-input" type="file" accept="image/*" capture="environment" style="display: none;">
+    <!-- Input & Controls -->
+    <div class="controls" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
+      <input type="text" id="userInput" placeholder="Ask J.A.R.V.I.S..." style="flex:1; min-width:160px; padding:8px;" />
+      <button type="button" id="sendBtn">SEND</button>
+      <button type="button" id="docBtn">DOC</button>
+      <input type="file" id="docInput" accept=".txt,.csv,.json,.md,.log,.xml,.html,.pdf" hidden />
+      <button type="button" id="micBtn">MIC</button>
+      <button type="button" id="camBtn">CAM</button>
+      <button type="button" id="wakeBtn">WAKE</button>
+      <button type="button" id="clearBtn">CLEAR</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
