@@ -84,6 +84,22 @@ function setReactorState(label, listening = false) {
   if (coreEl) coreEl.classList.toggle("listening", listening);
 }
 
+function denyUnauthorizedUser() {
+  const msg = "You are not my boss";
+  appendLog(`J.A.R.V.I.S.: ${msg}`, "err");
+  speakText(msg);
+  setReactorState("LOCKED", false);
+}
+
+function isUserAuthorized() {
+  // Browser cannot read OS face-unlock directly; hidden/locked tab blocks execution
+  if (document.hidden) {
+    denyUnauthorizedUser();
+    return false;
+  }
+  return true;
+}
+
 function handleLocalCommand(rawCmd) {
   const cmd = rawCmd.toLowerCase().trim();
 
@@ -100,7 +116,7 @@ function handleLocalCommand(rawCmd) {
     const url = query
       ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
       : "https://www.youtube.com";
-    appendLog(`J.A.R.V.I.S.: Opening YouTube...`, "ai");
+    appendLog("J.A.R.V.I.S.: Opening YouTube...", "ai");
     speakText("Opening YouTube");
     window.open(url, "_blank");
     return true;
@@ -216,6 +232,7 @@ function toggleWakeMode() {
 }
 
 function startManualListen() {
+  if (!isUserAuthorized()) return;
   if (!recognition) recognition = initSpeechRecognition();
   if (!recognition) return;
   if (!isRecognizing) {
@@ -238,6 +255,10 @@ function handleCommandSubmit(event) {
 
 async function processUserCommand(commandText) {
   appendLog(`You: ${commandText}`, "user");
+
+  if (!isUserAuthorized()) {
+    return;
+  }
 
   if (handleLocalCommand(commandText)) {
     return;
