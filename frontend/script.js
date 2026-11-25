@@ -4,11 +4,14 @@ const GEMINI_MODEL = "gemini-3.5-flash";
 let wakeModeEnabled = false;
 let recognition = null;
 let isRecognizing = false;
+let activeTimerId = null;
 
 function appendLog(text, type = "ai") {
   const logBox = document.getElementById("logBox");
-  if (!logBox) return;
-
+  if (!logBox) {
+    alert(text);
+    return;
+  }
   const div = document.createElement("div");
   div.className = `msg ${type}`;
   div.textContent = text;
@@ -48,13 +51,13 @@ function saveApiKey() {
   const input = document.getElementById("apiKeyInput");
   const key = input ? input.value.trim() : "";
   if (!key) {
-    appendLog("Please enter a valid Gemini API key.", "err");
+    appendLog("Please paste your Gemini API key first, then tap Save Key.", "err");
     return;
   }
   localStorage.setItem(STORAGE_KEY, key);
   if (input) input.value = "";
   syncApiKeyUI();
-  appendLog("API key saved. Input hidden.", "sys");
+  appendLog("API key saved. Try typing a command or tapping SPEAK.", "sys");
 }
 
 function resetApiKey() {
@@ -65,26 +68,67 @@ function resetApiKey() {
 
 function speakText(text) {
   if (!("speechSynthesis" in window) || !text) return;
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = 1.02;
-  utter.pitch = 1.0;
-  window.speechSynthesis.speak(utter);
+  try {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.rate = 1.02;
+    utter.pitch = 1.0;
+    window.speechSynthesis.speak(utter);
+  } catch (_) {}
 }
 
 function setReactorState(label, listening = false) {
   const labelEl = document.getElementById("reactorLabel");
   const coreEl = document.getElementById("reactorCore");
   if (labelEl) labelEl.textContent = label;
-  if (coreEl) {
-    coreEl.classList.toggle("listening", listening);
+  if (coreEl) coreEl.classList.toggle("listening", listening);
+}
+
+function handleLocalCommand(rawCmd) {
+  const cmd = rawCmd.toLowerCase().trim();
+
+  if (cmd === "time" || cmd.includes("what time") || cmd.includes("current time")) {
+    const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const msg = `Current time is ${nowStr}.`;
+    appendLog(`J.A.R.V.I.S.: ${msg}`, "ai");
+    speakText(msg);
+    return true;
   }
+
+  if (cmd.includes("open youtube")) {
+    const query = cmd.replace(/open\s+youtube/i, "").trim();
+    const url = query
+      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`
+      : "https://www.youtube.com";
+    appendLog(`J.A.R.V.I.S.: Opening YouTube...`, "ai");
+    speakText("Opening YouTube");
+    window.open(url, "_blank");
+    return true;
+  }
+
+  const timerMatch = cmd.match(/(?:set\s+)?timer\s+(?:for\s+)?(\d+)\s*(sec|secs|second|seconds|min|mins|minute|minutes)/i);
+  if (timerMatch) {
+    const amount = parseInt(timerMatch[1], 10);
+    const unit = timerMatch[2].toLowerCase();
+    const ms = unit.startsWith("min") ? amount * 60 * 1000 : amount * 1000;
+    if (activeTimerId) clearTimeout(activeTimerId);
+    const msg = `Timer set for ${amount} ${unit}.`;
+    appendLog(`J.A.R.V.I.S.: ${msg}`, "ai");
+    speakText(msg);
+    activeTimerId = setTimeout(() => {
+      appendLog("J.A.R.V.I.S.: Timer completed!", "ai");
+      speakText("Sir, your timer is up.");
+    }, ms);
+    return true;
+  }
+
+  return false;
 }
 
 function initSpeechRecognition() {
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) {
-    appendLog("Speech recognition is not supported in this browser.", "err");
+    appendLog("Speech recognition not supported in this browser.", "err");
     return null;
   }
 
@@ -150,12 +194,10 @@ function toggleWakeMode() {
     wakeBtn.classList.toggle("active", wakeModeEnabled);
   }
 
-  if (!recognition) {
-    recognition = initSpeechRecognition();
-  }
+  if (!recognition) recognition = initSpeechRecognition();
 
   if (wakeModeEnabled) {
-    appendLog("Wake mode ON. Keep this tab open and say 'Hey Jarvis'.", "sys");
+    appendLog("Wake mode ON. Say 'Hey Jarvis' while this tab is open.", "sys");
     setReactorState("WAKE ON", false);
     if (recognition && !isRecognizing) {
       try {
@@ -174,14 +216,12 @@ function toggleWakeMode() {
 }
 
 function startManualListen() {
-  if (!recognition) {
-    recognition = initSpeechRecognition();
-  }
+  if (!recognition) recognition = initSpeechRecognition();
   if (!recognition) return;
   if (!isRecognizing) {
     try {
       recognition.start();
-    } catch (e) {
+    } catch (_) {
       appendLog("Unable to start microphone.", "err");
     }
   }
@@ -199,9 +239,13 @@ function handleCommandSubmit(event) {
 async function processUserCommand(commandText) {
   appendLog(`You: ${commandText}`, "user");
 
+  if (handleLocalCommand(commandText)) {
+    return;
+  }
+
   const apiKey = getApiKey();
   if (!apiKey) {
-    appendLog("Error: Gemini API key not set.", "err");
+    appendLog("Error: API key missing. Paste key and click Save Key.", "err");
     return;
   }
 
@@ -213,12 +257,7 @@ async function processUserCommand(commandText) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: commandText }]
-          }
-        ]
+        contents: [{ role: "user", parts: [{ text: commandText }] }]
       })
     });
 
@@ -239,7 +278,7 @@ async function processUserCommand(commandText) {
     appendLog(`J.A.R.V.I.S.: ${reply}`, "ai");
     speakText(reply.slice(0, 240));
   } catch (err) {
-    appendLog(`Network/Request Error: ${err.message}`, "err");
+    appendLog(`Network Error: ${err.message}`, "err");
   } finally {
     setReactorState(wakeModeEnabled ? "WAKE ON" : "STANDBY", false);
   }
