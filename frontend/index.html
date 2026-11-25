@@ -360,10 +360,12 @@
       <div id="pcStatusBadge" class="status-badge offline">PC BRIDGE: OFFLINE</div>
     </header>
 
-    <div class="api-bar">
-      <input id="apiKeyInput" type="password" placeholder="Gemini API Key (gemini-3.5-flash)" />
-      <button id="saveKeyBtn" type="button">Save Key</button>
-    </div>
+    <div id="api-key-section" class="api-bar">
+  <input type="password" id="apiKeyInput" placeholder="Enter Gemini API Key" />
+  <button id="saveKeyBtn" onclick="saveApiKey()">Save Key</button>
+</div>
+<button id="changeKeyBtn" class="change-key-btn" onclick="resetApiKey()" style="display:none;">API Key</button>
+
 
     <main class="core-stage">
       <div id="arcReactor" class="arc-reactor idle" aria-label="J.A.R.V.I.S Core">
