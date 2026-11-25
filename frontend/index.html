@@ -1,35 +1,38 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>J.A.R.V.I.S</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0d12">
+  <meta name="description" content="J.A.R.V.I.S personal AI assistant">
+  <title>J.A.R.V.I.S – Personal AI</title>
+
+  <!-- Existing CSS -->
+  <link rel="stylesheet" href="style.css?v=jarvis-stage-grid-scroll-v8-20260930-final">
+
+  <!-- ⚡ ORBS LIBRARY ADDED HERE ⚡ -->
+  <script src="https://cdn.jsdelivr.net/npm/orbs@latest/dist/orbs.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/orbs@latest/dist/orbs.css">
+
+  <!-- ⚡ INLINE STYLE FOR THE NEW ORB CONTAINER ⚡ -->
+  <style>
+    /* Container for the live Orb */
+    #jarvis-core-container {
+      width: 150px;       /* Size of the orb */
+      height: 150px;
+      margin: 0 auto 20px auto; /* Center it horizontally */
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Ensure canvas inside looks good */
+    #jarvis-core-container canvas {
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.4); /* Cyan Glow */
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.6));
+    }
+  </style>
 </head>
 <body>
-  <header><h1>J.A.R.V.I.S</h1><p>MOBILE EDITION</p></header>
-
-  <div class="core">
-    <div class="ring r1"></div>
-    <div class="ring r2"></div>
-    <div class="center"></div>
-  </div>
-  <p class="core-text">CORE ACTIVE</p>
-
-  <div class="status">
-    <h2>SYSTEM STATUS</h2>
-    <div class="row"><span>AI CORE</span><b class="on">● ONLINE</b></div>
-    <div class="row"><span>NETWORK</span><b class="on">● ONLINE</b></div>
-    <div class="row"><span>VOICE</span><b class="off">● LOCKED</b></div>
-    <div class="row"><span>MEMORY</span><b class="off">● LOCKED</b></div>
-  </div>
-
-  <div class="chat" id="chat"></div>
-  <div class="input-area">
-    <input id="msg" placeholder="Ask J.A.R.V.I.S...">
-    <button id="send">SEND</button>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html>
