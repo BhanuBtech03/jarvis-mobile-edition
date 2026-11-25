@@ -171,3 +171,61 @@ async function callGemini(p) {
     }
   }
 }
+// ===== WAKE WORD ENGINE =====
+let wakeWordEnabled = false;
+const WAKE_WORD = "hey jarvis"; // Lowercase for comparison
+
+function toggleWakeWord() {
+  wakeWordEnabled = !wakeWordEnabled;
+  const btn = document.getElementById('wake-btn');
+  const status = document.getElementById('wake-status');
+
+  if (wakeWordEnabled) {
+    // Visual Feedback
+    if (btn) btn.classList.add('active');
+    if (status) {
+      status.innerText = "LISTENING FOR 'HEY JARVIS'...";
+      status.style.color = "#00ff00";
+    }
+    startContinuousListening();
+  } else {
+    // Reset Visuals
+    if (btn) btn.classList.remove('active');
+    if (status) {
+      status.innerText = "WAKE: OFF";
+      status.style.color = "#888";
+    }
+    stopContinuousListening();
+  }
+}
+
+function startContinuousListening() {
+  if (!rec) return;
+
+  // Configure for continuous listening
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  rec.onresult = (event) => {
+    const last = event.results.length - 1;
+    const transcript = event.results[last][0].transcript.toLowerCase();
+
+    console.log("Heard:", transcript);
+
+    // Check if Wake Word exists in the heard phrase
+    if (transcript.includes(WAKE_WORD)) {
+      speak("Yes Boss?"); // Immediate feedback
+
+      // Turn Orb Green (if you have setJarvisVisualState function)
+      if (typeof setJarvisVisualState === 'function') {
+        setJarvisVisualState('LISTENING');
+      }
+
+      // Optional: Pause wake word detection briefly to avoid loop
+      wakeWordEnabled = false;
+      setTimeout(() => {
+        // ... (మిగిలిన timeout కోడ్ స్క్రీన్‌షాట్‌లో కట్ అయింది)
+      }, 1500);
+    }
+  };
+}
