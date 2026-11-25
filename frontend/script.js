@@ -311,3 +311,32 @@ checkPcBridgeStatus();
 if (wakeEnabled && recognition) {
   try { recognition.start(); } catch (_) {}
 }
+
+function syncApiKeyUI() {
+  const savedKey = localStorage.getItem("GEMINI_API_KEY");
+  const apiSection = document.getElementById("api-key-section");
+  const changeBtn = document.getElementById("changeKeyBtn");
+
+  if (savedKey && savedKey.trim() !== "") {
+    if (apiSection) apiSection.style.display = "none";
+    if (changeBtn) changeBtn.style.display = "inline-block";
+  } else {
+    if (apiSection) apiSection.style.display = "flex";
+    if (changeBtn) changeBtn.style.display = "none";
+  }
+}
+
+function saveApiKey() {
+  const input = document.getElementById("apiKeyInput");
+  const key = input ? input.value.trim() : "";
+  if (!key) return;
+  localStorage.setItem("GEMINI_API_KEY", key);
+  syncApiKeyUI();
+}
+
+function resetApiKey() {
+  localStorage.removeItem("GEMINI_API_KEY");
+  syncApiKeyUI();
+}
+
+window.addEventListener("DOMContentLoaded", syncApiKeyUI);
