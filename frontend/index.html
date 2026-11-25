@@ -4,117 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>J.A.R.V.I.S Mobile Edition</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 12px;
-      background: #000000;
-      color: #00f7ff;
-      font-family: Arial, sans-serif;
-    }
-    .jarvis-wrap {
-      max-width: 520px;
-      margin: 0 auto;
-    }
-    .header-title {
-      text-align: center;
-      margin: 4px 0 0;
-      letter-spacing: 3px;
-      font-size: 24px;
-      color: #00f7ff;
-    }
-    .header-sub {
-      text-align: center;
-      margin: 2px 0 14px;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: #48b8c0;
-    }
-    .orb-container {
-      width: 120px;
-      height: 120px;
-      margin: 10px auto;
-      border-radius: 50%;
-      border: 2px solid #00f7ff;
-      box-shadow: 0 0 20px rgba(0, 247, 255, 0.35), inset 0 0 18px rgba(0, 247, 255, 0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .orb-core {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #00f7ff;
-      box-shadow: 0 0 22px #00f7ff;
-    }
-    .core-label {
-      text-align: center;
-      font-size: 10px;
-      letter-spacing: 2px;
-      color: #48b8c0;
-      margin-bottom: 12px;
-    }
-    .status-box, .chat-box {
-      border: 1px solid #0b4f57;
-      background: rgba(0, 25, 30, 0.55);
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 12px;
-    }
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 3px 0;
-    }
-    .status-online { color: #00ff88; }
-    .status-ready { color: #ff4d4d; }
-    .chat-box {
-      min-height: 110px;
-      max-height: 220px;
-      overflow-y: auto;
-      line-height: 1.45;
-    }
-    .api-row, .input-row, .btn-grid {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-    .btn-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-    input[type="text"], input[type="password"] {
-      flex: 1;
-      min-width: 0;
-      padding: 9px 10px;
-      background: #021114;
-      color: #00f7ff;
-      border: 1px solid #0b4f57;
-      font-size: 13px;
-    }
-    button {
-      padding: 9px 10px;
-      background: #00e5ff;
-      color: #001317;
-      border: none;
-      font-weight: bold;
-      font-size: 12px;
-      cursor: pointer;
-    }
-    button:active {
-      opacity: 0.8;
-    }
-    .meta-line {
-      font-size: 11px;
-      color: #7ee8f0;
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
-  </style>
+  <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
   <div class="jarvis-wrap">
@@ -122,29 +12,31 @@
     <div class="header-sub">MOBILE EDITION</div>
 
     <div class="orb-container" id="jarvisOrb">
+      <div class="orb-ring"></div>
       <div class="orb-core"></div>
     </div>
-    <div class="core-label">CORE ACTIVE</div>
+    <div class="core-label" id="coreLabel">CORE ACTIVE</div>
 
     <div class="status-box">
-      <div style="font-size:10px; letter-spacing:1px; color:#5ecad2; margin-bottom:6px;">SYSTEM STATUS</div>
-      <div class="status-row"><span>AI CORE</span><span class="status-online">● ONLINE</span></div>
-      <div class="status-row"><span>NETWORK</span><span class="status-online">● ONLINE</span></div>
+      <div class="status-heading">SYSTEM STATUS</div>
+      <div class="status-row"><span>AI CORE</span><span class="status-online" id="coreStatus">● ONLINE</span></div>
+      <div class="status-row"><span>NETWORK</span><span class="status-online" id="netStatus">● ONLINE</span></div>
       <div class="status-row"><span>VOICE</span><span class="status-ready" id="voiceStatus">● READY</span></div>
-      <div class="status-row"><span>MEMORY</span><span class="status-online">● ACTIVE</span></div>
-      <div class="status-row"><span>WAKE WORD</span><span class="status-ready" id="wakeStatus">WAKE OFF</span></div>
+      <div class="status-row"><span>MEMORY</span><span class="status-online" id="memStatus">● ACTIVE</span></div>
+      <div class="status-row"><span>WAKE WORD</span><span class="status-off" id="wakeStatus">WAKE OFF</span></div>
     </div>
 
     <div class="api-row">
-      <input type="password" id="geminiApiKey" placeholder="Paste Gemini API Key" />
+      <input type="password" id="geminiApiKey" placeholder="Paste Gemini API Key" autocomplete="off" />
       <button type="button" id="saveKeyBtn">SAVE KEY</button>
     </div>
+
     <div class="meta-line" id="docStatus">No document attached</div>
 
     <div class="chat-box" id="chatLog"></div>
 
     <div class="input-row">
-      <input type="text" id="userInput" placeholder="Ask J.A.R.V.I.S..." />
+      <input type="text" id="userInput" placeholder="Hey jarvis" />
       <button type="button" id="sendBtn">SEND</button>
     </div>
 
@@ -156,9 +48,9 @@
       <button type="button" id="clearBtn">CLEAR</button>
     </div>
 
-    <input type="file" id="docFileInput" accept=".pdf,.txt,.csv,.json,.md" style="display:none;" />
+    <input type="file" id="docFileInput" accept=".pdf,.txt,.csv,.json,.md,.log" hidden />
   </div>
 
-  <script src="script.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
